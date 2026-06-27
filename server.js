@@ -8,10 +8,8 @@ const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 require('dotenv').config();
 
-// Models Import
 const Problem = require('./models/Problem');
 
-// Inline Schema Update for Stats directly tracking within users
 const UserSchemaUpdate = new mongoose.Schema({
     username: { type: String, required: true, unique: true },
     email: { type: String, required: true, unique: true },
@@ -24,7 +22,7 @@ const UserSchemaUpdate = new mongoose.Schema({
     createdAt: { type: Date, default: Date.now }
 });
 
-// Avoid model recompilation crashes
+
 const LiveUser = mongoose.models.User || mongoose.model('User', UserSchemaUpdate);
 
 const app = express();
@@ -40,9 +38,7 @@ mongoose.connect(mongoURI)
   .then(() => console.log("Cloud MongoDB Atlas connected successfully! 🔥"))
   .catch((err) => console.error("Database connection error:", err));
 
-// ==========================================
-// 1. ROUTE: Code Run (With Process Time Tracking)
-// ==========================================
+
 app.post('/run', (req, res) => {
     const { code, input } = req.body;
     if (!code) return res.status(400).json({ error: "Code khali nahi ho sakta!" });
@@ -68,9 +64,7 @@ app.post('/run', (req, res) => {
     });
 });
 
-// ==========================================
-// 2. ROUTE: Live Dynamic Submission (Score Multiplier Engine)
-// ==========================================
+
 app.post('/submit', async (req, res) => {
     const { code, problemId, username } = req.body;
     if (!code || !problemId) return res.status(400).json({ error: "Details missing!" });
@@ -113,7 +107,7 @@ app.post('/submit', async (req, res) => {
         const diff = process.hrtime(startTime);
         const executionTime = Math.round((diff[0] * 1000) + (diff[1] / 1000000));
 
-        // Dynamic Stats Tracking Trigger
+        
         if (username) {
             const user = await LiveUser.findOne({ username });
             if (user) {
@@ -133,9 +127,7 @@ app.post('/submit', async (req, res) => {
     }
 });
 
-// ==========================================
-// 3. ROUTE: Global Leaderboard (High-Score Fetch)
-// ==========================================
+
 app.get('/api/leaderboard', async (req, res) => {
     try {
         const leaders = await LiveUser.find({}).sort({ totalScore: -1 }).limit(10).select('username totalScore solvedEasy solvedMedium solvedHard streak');
@@ -145,9 +137,7 @@ app.get('/api/leaderboard', async (req, res) => {
     }
 });
 
-// ==========================================
-// 4. ROUTES: Problems Archive Management
-// ==========================================
+
 app.get('/problems', async (req, res) => {
     try {
         const all = await Problem.find({}); 
@@ -167,9 +157,7 @@ app.post('/problems', async (req, res) => {
     }
 });
 
-// ==========================================
-// 5. ROUTE: Register/Signup (Fixed Default Counters Sync)
-// ==========================================
+
 app.post('/api/auth/signup', async (req, res) => {
     try {
         const { username, email, password } = req.body;
@@ -209,9 +197,7 @@ app.post('/api/auth/signup', async (req, res) => {
     }
 });
 
-// ==========================================
-// 6. ROUTE: Bulletproof User Login (Supports Username & Email)
-// ==========================================
+
 app.post('/api/auth/login', async (req, res) => {
     try {
         const { email, password } = req.body;
@@ -220,7 +206,7 @@ app.post('/api/auth/login', async (req, res) => {
             return res.status(400).json({ error: "Email/Username aur Password dono daalna zaroori hai!" });
         }
 
-        // Search via either Email address or unique Username string
+     
         const user = await LiveUser.findOne({
             $or: [
                 { email: email.trim() },
@@ -251,9 +237,7 @@ app.post('/api/auth/login', async (req, res) => {
     }
 });
 
-// ==========================================
-// 7. ROUTE: User Dynamic Real-Time Stats Fetch
-// ==========================================
+
 app.get('/api/user/stats/:username', async (req, res) => {
     try {
         const user = await LiveUser.findOne({ username: req.params.username });
@@ -262,7 +246,7 @@ app.get('/api/user/stats/:username', async (req, res) => {
         res.status(500).json({ error: error.message });
     }
 });
-// 🛠️ ROUTE 8: DELETE QUESTION BY ID
+
 app.delete('/problems/:id', async (req, res) => {
     try {
         const problemId = req.params.id;

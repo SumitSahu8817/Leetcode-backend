@@ -56,8 +56,7 @@ const seedDatabase = async () => {
         await mongoose.connect(mongoURI);
         console.log("Database connected for seeding... 🔌");
         
-        // Purane questions clear karna ho toh line niche se uncomment kar sakte ho
-        // await Problem.deleteMany({}); 
+        
 
         await Problem.insertMany(questions);
         console.log("Saare premium questions database mein inject ho gaye! 🔥🚀");
