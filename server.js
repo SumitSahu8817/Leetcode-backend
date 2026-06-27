@@ -22,14 +22,14 @@ const UserSchemaUpdate = new mongoose.Schema({
     createdAt: { type: Date, default: Date.now }
 });
 
-
 const LiveUser = mongoose.models.User || mongoose.model('User', UserSchemaUpdate);
 
 const app = express();
 app.use(cors());
 app.use(express.json());
 
-const PORT = 5000;
+// 🔴 CHANGE 1: Render dynamically PORT assign karega, isliye process.env.PORT lagaya hai
+const PORT = process.env.PORT || 5000;
 const JWT_SECRET = process.env.JWT_SECRET || "judge_secret_token_key_123";
 
 const mongoURI = process.env.MONGO_URI || "mongodb://sumitsahu0683_db_user:Sumit9575@ac-alupryw-shard-00-00.brrrh8k.mongodb.net:27017,ac-alupryw-shard-00-01.brrrh8k.mongodb.net:27017,ac-alupryw-shard-00-02.brrrh8k.mongodb.net:27017/onlineJudge?ssl=true&replicaSet=atlas-cywknk-shard-0&authSource=admin&retryWrites=true&w=majority";
@@ -49,7 +49,8 @@ app.post('/run', (req, res) => {
     fs.writeFileSync(path.join(codeDir, 'solution.cpp'), code);
     fs.writeFileSync(path.join(codeDir, 'input.txt'), input || "");
 
-    const dockerCmd = `docker run --rm -v "${codeDir}":/app -w /app gcc sh -c "g++ solution.cpp -o a.out && ./a.out < input.txt"`;
+    // 🔴 CHANGE 2: Docker run hatakar, direct container ke andar g++ se run karne ki command
+    const dockerCmd = `g++ "${path.join(codeDir, 'solution.cpp')}" -o "${path.join(codeDir, 'a.out')}" && "${path.join(codeDir, 'a.out')}" < "${path.join(codeDir, 'input.txt')}"`;
 
     const startTime = process.hrtime();
     exec(dockerCmd, { timeout: 8000 }, (error, stdout, stderr) => {
@@ -83,7 +84,8 @@ app.post('/submit', async (req, res) => {
             const tc = problem.testCases[i];
             fs.writeFileSync(path.join(codeDir, 'input.txt'), tc.input || "");
 
-            const dockerCmd = `docker run --rm -v "${codeDir}":/app -w /app gcc sh -c "g++ solution.cpp -o a.out && ./a.out < input.txt"`;
+            // 🔴 CHANGE 3: Submit route me bhi docker run hata kar simple execute command lagayi hai
+            const dockerCmd = `g++ "${path.join(codeDir, 'solution.cpp')}" -o "${path.join(codeDir, 'a.out')}" && "${path.join(codeDir, 'a.out')}" < "${path.join(codeDir, 'input.txt')}"`;
 
             const runCode = () => {
                 return new Promise((resolve, reject) => {
@@ -107,7 +109,6 @@ app.post('/submit', async (req, res) => {
         const diff = process.hrtime(startTime);
         const executionTime = Math.round((diff[0] * 1000) + (diff[1] / 1000000));
 
-        
         if (username) {
             const user = await LiveUser.findOne({ username });
             if (user) {
@@ -206,7 +207,6 @@ app.post('/api/auth/login', async (req, res) => {
             return res.status(400).json({ error: "Email/Username aur Password dono daalna zaroori hai!" });
         }
 
-     
         const user = await LiveUser.findOne({
             $or: [
                 { email: email.trim() },
@@ -261,4 +261,6 @@ app.delete('/problems/:id', async (req, res) => {
         res.status(500).json({ error: "Delete pipeline crash ho gayi", details: error.message });
     }
 });
-app.listen(PORT, () => console.log(`Gaanfaad Server firing on ${PORT} 🚀`));
+
+// 🔴 CHANGE 4: Port config updated
+app.listen(PORT, () => console.log(`Server firing on port ${PORT} 🚀`));
