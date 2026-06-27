@@ -1,7 +1,7 @@
-FROM node:18-slim
+FROM node:18-bullseye
 
-# 1. System dependencies aur g++ compiler install karna
-RUN apt-get update && apt-get install -y g++ python3 make && rm -rf /var/lib/apt/lists/*
+# System dependencies install karna
+RUN apt-get update && apt-get install -y g++ make python3 && rm -rf /var/lib/apt/lists/*
 
 WORKDIR /app
 
