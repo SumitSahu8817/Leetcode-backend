@@ -1,4 +1,7 @@
 const express = require('express');
+// server.js ke sabse top par paste karo (Line 1)
+const crypto = require('crypto');
+global.crypto = crypto;
 const cors = require('cors');
 const { exec } = require('child_process');
 const fs = require('fs');
