@@ -29,7 +29,11 @@ const UserSchemaUpdate = new mongoose.Schema({
 const LiveUser = mongoose.models.User || mongoose.model('User', UserSchemaUpdate);
 
 const app = express();
-app.use(cors());
+app.use(cors({
+    origin: ["https://your-frontend-vercel-url.vercel.app", "http://localhost:5173"], // Apne vercel ka domain yahan paste karo
+    credentials: true,
+    methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"]
+}));
 app.use(express.json());
 
 // 🔴 CHANGE 1: Render dynamically PORT assign karega, isliye process.env.PORT lagaya hai
