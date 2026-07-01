@@ -29,10 +29,25 @@ const UserSchemaUpdate = new mongoose.Schema({
 const LiveUser = mongoose.models.User || mongoose.model('User', UserSchemaUpdate);
 
 const app = express();
+// server.js me app.use(express.json()); ke just upar ya niche paste karo[cite: 4]
+const allowedOrigins = [
+  'https://sumit-codeengine.vercel.app',
+  'http://localhost:5173'
+];
+
 app.use(cors({
-    origin: ["https://your-frontend-vercel-url.vercel.app", "http://localhost:5173"], // Apne vercel ka domain yahan paste karo
-    credentials: true,
-    methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"]
+  origin: function (origin, callback) {
+    // Allow requests with no origin (like mobile apps or curl requests)
+    if (!origin) return callback(null, true);
+    if (allowedOrigins.indexOf(origin) === -1) {
+      const msg = 'The CORS policy for this site does not allow access from the specified Origin.';
+      return callback(new Error(msg), false);
+    }
+    return callback(null, true);
+  },
+  credentials: true,
+  methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+  allowedHeaders: ["Content-Type", "Authorization"]
 }));
 app.use(express.json());
 
@@ -40,7 +55,7 @@ app.use(express.json());
 const PORT = process.env.PORT || 5000;
 const JWT_SECRET = process.env.JWT_SECRET || "judge_secret_token_key_123";
 
-const mongoURI = process.env.MONGO_URI || "mongodb://sumitsahu0683_db_user:Sumit9575@ac-alupryw-shard-00-00.brrrh8k.mongodb.net:27017,ac-alupryw-shard-00-01.brrrh8k.mongodb.net:27017,ac-alupryw-shard-00-02.brrrh8k.mongodb.net:27017/onlineJudge?ssl=true&replicaSet=atlas-cywknk-shard-0&authSource=admin&retryWrites=true&w=majority";
+const mongoURI = process.env.MONGO_URI || "mongodb+srv://sumitsahu0683_db_user:Sumit9575@cluster0.brrrh8k.mongodb.net/onlineJudge?retryWrites=true&w=majority";
 
 mongoose.connect(mongoURI)
   .then(() => console.log("Cloud MongoDB Atlas connected successfully! 🔥"))
