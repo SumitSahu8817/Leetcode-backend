@@ -2,7 +2,8 @@ const mongoose = require('mongoose');
 const Problem = require('./models/Problem');
 require('dotenv').config();
 
-const mongoURI = process.env.MONGO_URI || "mongodb://sumitsahu0683_db_user:Sumit9575@ac-alupryw-shard-00-00.brrrh8k.mongodb.net:27017,ac-alupryw-shard-00-01.brrrh8k.mongodb.net:27017,ac-alupryw-shard-00-02.brrrh8k.mongodb.net:27017/onlineJudge?ssl=true&replicaSet=atlas-cywknk-shard-0&authSource=admin&retryWrites=true&w=majority";
+// 🔥 FIX 1: Render aur standard connection ke liye perfect backup string framework
+const mongoURI = process.env.MONGO_URI || "mongodb+srv://sumitsahu0683_db_user:Sumit9575@cluster0.brrrh8k.mongodb.net/onlineJudge?retryWrites=true&w=majority";
 
 const questions = [
   {
@@ -56,11 +57,14 @@ const seedDatabase = async () => {
         await mongoose.connect(mongoURI);
         console.log("Database connected for seeding... 🔌");
         
-        
+        // 🔥 FIX 2: Pehle se maujood saare duplicate/purane questions saaf karo
+        await Problem.deleteMany({});
+        console.log("Purana saara kachra aur duplicates cleared! 🧹✨");
 
+        // Naye clean questions insert karo
         await Problem.insertMany(questions);
         console.log("Saare premium questions database mein inject ho gaye! 🔥🚀");
-        process.exit();
+        process.exit(0);
     } catch (error) {
         console.error("Seeding failed:", error);
         process.exit(1);
