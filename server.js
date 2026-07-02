@@ -1,7 +1,7 @@
 const crypto = require('crypto');
 global.crypto = crypto;
 const express = require('express');
-// server.js ke sabse top par paste karo (Line 1)
+
 
 const cors = require('cors');
 const { exec } = require('child_process');
@@ -29,7 +29,7 @@ const UserSchemaUpdate = new mongoose.Schema({
 const LiveUser = mongoose.models.User || mongoose.model('User', UserSchemaUpdate);
 
 const app = express();
-// server.js me app.use(express.json()); ke just upar ya niche paste karo[cite: 4]
+
 const allowedOrigins = [
   'https://sumit-codeengine.vercel.app',
   'http://localhost:5173'
@@ -37,7 +37,7 @@ const allowedOrigins = [
 
 app.use(cors({
   origin: function (origin, callback) {
-    // Allow requests with no origin (like mobile apps or curl requests)
+ 
     if (!origin) return callback(null, true);
     if (allowedOrigins.indexOf(origin) === -1) {
       const msg = 'The CORS policy for this site does not allow access from the specified Origin.';
@@ -51,14 +51,37 @@ app.use(cors({
 }));
 app.use(express.json());
 
-// 🔴 CHANGE 1: Render dynamically PORT assign karega, isliye process.env.PORT lagaya hai
+
 const PORT = process.env.PORT || 5000;
 const JWT_SECRET = process.env.JWT_SECRET || "judge_secret_token_key_123";
 
 const mongoURI = process.env.MONGO_URI || "mongodb+srv://sumitsahu0683_db_user:Sumit9575@cluster0.brrrh8k.mongodb.net/onlineJudge?retryWrites=true&w=majority";
 
 mongoose.connect(mongoURI)
-  .then(() => console.log("Cloud MongoDB Atlas connected successfully! 🔥"))
+  .then(async () => {
+    console.log("Cloud MongoDB Atlas connected successfully! 🔥");
+    
+   
+    try {
+        const count = await Problem.countDocuments();
+        if (count > 4) {
+            console.log(`⚠️ Data corruption detected: ${count} entries found. Resetting database...`);
+            await Problem.deleteMany({});
+            
+            const freshQuestions = [
+              { title: "1. Even or Odd", difficulty: "Easy", description: "Given an integer N, print 'Even' if it is even, otherwise print 'Odd'.", inputFormat: "A single integer N.", outputFormat: "Print 'Even' or 'Odd'.", testCases: [{ input: "4", output: "Even" }, { input: "7", output: "Odd" }] },
+              { title: "2. Sum of Array", difficulty: "Easy", description: "Given an integer N followed by N array elements, find the sum of all elements in the array.", inputFormat: "First line contains integer N. Second line contains N space-separated integers.", outputFormat: "Print a single integer representing the sum.", testCases: [{ input: "3\n1 2 3", output: "6" }, { input: "5\n10 -2 3 4 5", output: "20" }] },
+              { title: "3. Factorial of N", difficulty: "Medium", description: "Given an integer N, find its factorial value (N!). Note: N will be up to 12.", inputFormat: "A single integer N.", outputFormat: "Print the factorial value.", testCases: [{ input: "5", output: "120" }, { input: "0", output: "1" }] },
+              { title: "4. Find Maximum", difficulty: "Easy", description: "Given three integers A, B, and C, find and print the maximum value among them.", inputFormat: "Three space-separated integers A, B, and C.", outputFormat: "Print the largest number.", testCases: [{ input: "5 12 9", output: "12" }, { input: "-1 -5 0", output: "0" }] }
+            ];
+            
+            await Problem.insertMany(freshQuestions);
+            console.log("Database perfectly restored with 4 standard questions! ✅🚀");
+        }
+    } catch (seedErr) {
+        console.error("Auto-sync failure:", seedErr);
+    }
+  })
   .catch((err) => console.error("Database connection error:", err));
 
 
@@ -107,7 +130,7 @@ app.post('/submit', async (req, res) => {
             const tc = problem.testCases[i];
             fs.writeFileSync(path.join(codeDir, 'input.txt'), tc.input || "");
 
-            // 🔴 CHANGE 3: Submit route me bhi docker run hata kar simple execute command lagayi hai
+           
             const dockerCmd = `g++ "${path.join(codeDir, 'solution.cpp')}" -o "${path.join(codeDir, 'a.out')}" && "${path.join(codeDir, 'a.out')}" < "${path.join(codeDir, 'input.txt')}"`;
 
             const runCode = () => {
@@ -164,7 +187,8 @@ app.get('/api/leaderboard', async (req, res) => {
 
 app.get('/problems', async (req, res) => {
     try {
-        const all = await Problem.find({}); 
+       
+        const all = await Problem.find({}).sort({ title: 1 }); 
         res.json(all);
     } catch (error) {
         res.status(500).json({ error: error.message });
