@@ -7,7 +7,7 @@ const mongoURI = process.env.MONGO_URI || "mongodb+srv://sumitsahu0683_db_user:S
 
 const questions = [
   {
-    title: "1. Even or Odd",
+    title: " Even or Odd",
     difficulty: "Easy",
     description: "Given an integer N, print 'Even' if it is even, otherwise print 'Odd'.",
     inputFormat: "A single integer N.",
@@ -18,7 +18,7 @@ const questions = [
     ]
   },
   {
-    title: "2. Sum of Array",
+    title: " Sum of Array",
     difficulty: "Easy",
     description: "Given an integer N followed by N array elements, find the sum of all elements in the array.",
     inputFormat: "First line contains integer N. Second line contains N space-separated integers.",
@@ -29,7 +29,7 @@ const questions = [
     ]
   },
   {
-    title: "3. Factorial of N",
+    title: " Factorial of N",
     difficulty: "Medium",
     description: "Given an integer N, find its factorial value (N!). Note: N will be up to 12.",
     inputFormat: "A single integer N.",
@@ -40,7 +40,7 @@ const questions = [
     ]
   },
   {
-    title: "4. Find Maximum",
+    title: " Find Maximum",
     difficulty: "Easy",
     description: "Given three integers A, B, and C, find and print the maximum value among them.",
     inputFormat: "Three space-separated integers A, B, and C.",
